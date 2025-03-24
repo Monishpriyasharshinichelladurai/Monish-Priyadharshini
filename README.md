@@ -1,27 +1,180 @@
-from flask import Flask, render_template, request
-import requests
+#index. html
 
-app = Flask(__name__)
+<!DOCTYPE html>
+<head>
+	<link rel="stylesheet" href="style2.css">
+	<link rel="stylesheet" href=
+"https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+	<link rel="stylesheet" href=
+"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+	<link rel="stylesheet" href=
+"https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
+	<title>weather</title>
+</head>
+<body>
+	<div class="container">
+		<div class="weather-card">
+			<h1 style="color: green;">
+				weatherforworld
+			</h1>
+			<h3>
+				WeatherDashboard
+			</h3>
+			<input type="text" id="city-input"
+				placeholder="Enter city name">
+			<button id="city-input-btn"
+					onclick="weatherFn($('#city-input').val())">
+					Get Weather
+			</button>
+			<div id="weather-info"
+				class="animate__animated animate__fadeIn">
+				<h3 id="city-name"></h3>
+				<p id="date"></p>
+				<p id="temperature"></p>
+				<p id="description"></p>
+				<p id="wind-speed"></p>
+			</div>
+		</div>
+	</div>
+	<script src=
+"https://code.jquery.com/jquery-3.6.0.min.js">
+	</script>
+	<script src=
+"https://momentjs.com/downloads/moment.min.js">
+	</script>
+	<script src="script2.js"></script>
+</body>
+</html>
 
-# OpenWeather API Key (replace with your key)
-API_KEY = "d9577b52637844c8162a8fcb5fc42584"
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    weather_data = None
-    error_message = None
 
-    if request.method == "POST":
-        city = request.form["city"]
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-        
-        response = requests.get(url)
-        if response.status_code == 200:
-            weather_data = response.json()
-        else:
-            error_message = "City not found. Please try again."
+#style.css
 
-    return render_template("index.html", weather=weather_data, error=error_message)
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #4CAF50, #2196F3);
+}
 
-if __name__ == "__main__":
-    app.run(debug=True)
+.container {
+    text-align: center;
+}
+
+.weather-card {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    width: 450px;
+}
+
+.weather-card:hover {
+    transform: scale(1.05);
+}
+
+#city-input {
+    padding: 15px;
+    margin: 10px 0;
+    width: 70%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#city-input:focus {
+    outline: none;
+    border-color: #2196F3;
+}
+
+#city-input::placeholder {
+    color: #aaa;
+}
+
+#city-input-btn {
+    padding: 10px;
+    background-color: #2196F3;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#city-input-btn:hover {
+    background-color: #1565C0;
+}
+
+#weather-info {
+    display: none;
+}
+
+
+#temperature {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+#description {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+#wind-speed {
+    font-size: 16px;
+    color: rgb(255, 0, 0);
+}
+
+#date {
+    font-size: 14px;
+    color: rgb(255, 0, 0);
+}
+
+
+
+#script.js
+
+
+const url =
+	'https://api.openweathermap.org/data/2.5/weather';
+const apiKey =
+	'f00c38e0279b7bc85480c3fe775d518c';
+
+$(document).ready(function () {
+	weatherFn('Chennai');
+});
+
+async function weatherFn(cName) {
+	const temp =
+		`${url}?q=${cName}&appid=${apiKey}&units=metric`;
+	try {
+		const res = await fetch(temp);
+		const data = await res.json();
+		if (res.ok) {
+			weatherShowFn(data);
+		} else {
+			alert('City not found. Please try again.');
+		}
+	} catch (error) {
+		console.error('Error fetching weather data:', error);
+	}
+}
+
+function weatherShowFn(data) {
+	$('#city-name').text(data.name);
+	$('#date').text(moment().
+		format('MMMM Do YYYY, h:mm:ss a'));
+	$('#temperature').
+		html(`${data.main.temp}°C`);
+	$('#description').
+		text(data.weather[0].description);
+	$('#wind-speed').
+		html(`Wind Speed: ${data.wind.speed} m/s`);
+	$('#weather-info').fadeIn();
+}
+
